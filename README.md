@@ -1,16 +1,20 @@
 # Coupon Statistics Dashboard
 
-This Django project provides a Chart.js dashboard to visualize statistics related to coupons extracted from JSON to the DB using ORM.
+This Django project provides a Chart.js dashboard to visualize statistics related to coupons extracted from JSON to the SQLite DB using ORM, Django templates, views and models. No serializers.
 
 ![](screenshot.png)
 
 - Includes custom models, migrations, and import script for coupons.json
 - 4 REST API endpoints to see a few stats about the coupons, using the Django ORM.
-- Bootstrap+Chart.js web dashboard, using Django template on the view, and Django webserver.
+- Bootstrap+Chart.js web dashboard, using Django template on the view, and Django webserver. Bit of chart interactivity: can hide/show labels in pie chart.
 - Custom models but no serializers, since this is read-only and needs no computed fields.
+- All your base are belong to us.
 
 ## Setup and Execution on Ubuntu
 If using Windows, I recommend using WSL2, although you can also use MinGW.
+I'm using the latest stable Python (3.8) and Django (4.2.5) that Ubuntu provides with apt.
+
+This might help you: https://www.digitalocean.com/community/tutorials/how-to-install-the-django-web-framework-on-ubuntu-22-04
 
 1. **Clone the Repository**:
    ```
@@ -38,10 +42,10 @@ If using Windows, I recommend using WSL2, although you can also use MinGW.
     ```
 
 
-## Endpoints
+## Features
 
-0.  **Coupon Type Count**: 
-   - **GET**: `/`
+0.  **Dashboard**: 
+   - **GET** (website): `/`
    - **Description**: Single Page App displays a simple Chart.js dashboard from data generated using only views and templates from Django, and a bit of bootstrap.
 
 1. **Coupon Type Count**: 
@@ -155,8 +159,13 @@ If using Windows, I recommend using WSL2, although you can also use MinGW.
     }
 ]
 ```
+6. **Admin CRM**
+   - **GET** (website): `/admin`
+   - **Description**: Don't forget that Django also provides `/admin` style CRM web client to manage the models among many tools, and you only will need to create a superuser just after running `restart_database.py`, and then do:
 
-## Models
+`python manage.py createsuperuser`
+
+## How is it made
 I implemented three models: `Coupon, PromotionType, WebShop`.
 Each coupon must have a promotion type, and a webshop assigned, too.
 Thus, each coupon has a FK of the PromotionType, and Webshop ID's
@@ -180,4 +189,19 @@ print(PromotionType.objects.all())
 
 # For Webshop
 print(Webshop.objects.all())
+```
+
+The views work both as API rest endpoints and data functions to generate the `all_stats.html` template. This HTML is a fairly simple Bootstrap flex layout with Chart.js, using their current stable CDNs.
+Remember to start the webserver and jump right into it:
+```
+python manage.py runserver
+```
+
+## License
+See LICENSE.txt
+
+```
+GNU GPLv3
+
+Permissions of this strong copyleft license are conditioned on making available complete source code of licensed works and modifications, which include larger works using a licensed work, under the same license. Copyright and license notices must be preserved. Contributors provide an express grant of patent rights.
 ```
