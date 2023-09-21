@@ -1,6 +1,6 @@
 import json
 from django.core.management.base import BaseCommand
-from couponstats.models import Coupon
+from couponstats.models import Coupon, PromotionType, Webshop
 
 '''
     After running makemigrations and the migrations, use this file to import the coupons.json file.
@@ -8,11 +8,10 @@ from couponstats.models import Coupon
 '''
     Note on parsing:
         - Null values are allowed on the 'value' field. (example: free shipping)
-        - promotion types are useless if null, so we skip them.
+        - promotion types are useless if null, so we store them as 'other'.
     Promotion types and values CAN be figured out from the title, but I think that is
     out of the scope of this script. It's not reliable to determine where and which value
     is inside the title string.
-    In a nutshell: we assume values can be null, but null promotion types are unacceptable.
 '''
 class Command(BaseCommand):
 
@@ -24,8 +23,20 @@ class Command(BaseCommand):
             coupons = data.get('coupons', [])
             
             for coupon_data in coupons:
-                if coupon_data['promotion_type'] == None:
-                    continue
+                promotion_type_name = coupon_data['promotion_type']
+                
+                if promotion_type_name is None:
+                    promotion_type_name = 'other'
+
+                # Get or create PromotionType instance
+                promotion_type_obj, created = PromotionType.objects.get_or_create(
+                    name=promotion_type_name
+                )
+
+                # Get or create Webshop instance
+                webshop_obj, created = Webshop.objects.get_or_create(
+                    name=coupon_data['webshop_id']
+                )
 
                 Coupon.objects.create(
                     country_code=coupon_data['country_code'],
@@ -34,10 +45,10 @@ class Command(BaseCommand):
                     description=coupon_data['description'],
                     first_seen=coupon_data['first_seen'],
                     last_seen=coupon_data['last_seen'],
-                    promotion_type=coupon_data['promotion_type'],
+                    promotion_type=promotion_type_obj,
                     title=coupon_data['title'],
                     value=coupon_data['value'],
-                    webshop_id=coupon_data['webshop_id']
+                    webshop_id=webshop_obj
                 )
 
         self.stdout.write(self.style.SUCCESS('Successfully imported coupons'))
