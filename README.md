@@ -31,12 +31,12 @@ This might help you: https://www.digitalocean.com/community/tutorials/how-to-ins
     ```
     pip install -r requirements.txt
     ```
-4. Run restart_database.sh which will execute makemigrations, the migrations, and the import_coupons.py script. The coupons.json must be on the root dir.
+4. **Run restart_database.sh** which will execute makemigrations, the migrations, and the import_coupons.py script. The coupons.json must be on the root dir.
     ```
     ./restart_database.sh
     ```
 
-5. Start the Development Server:
+5. **Start the Development Server:**
     ```
     python manage.py runserver
     ```
@@ -44,11 +44,11 @@ This might help you: https://www.digitalocean.com/community/tutorials/how-to-ins
 
 ## Features
 
-0.  **Dashboard**: 
+1.  **Dashboard**: 
    - **GET** (website): `/`
    - **Description**: Single Page App displays a simple Chart.js dashboard from data generated using only views and templates from Django, and a bit of bootstrap.
 
-1. **Coupon Type Count**: 
+2. **Coupon Type Count**: 
    - **GET** (JSON): `/stats/count`
    - **Description**: Shows how many coupons each coupon type has.
 ```
@@ -80,8 +80,9 @@ This might help you: https://www.digitalocean.com/community/tutorials/how-to-ins
 ]
 ```
 
-2. **Percent-Off Coupon Stats**:
+3. **Percent-Off Coupon Stats**:
    - **GET** (JSON): `/stats/percent-off`
+   - urls.py: `stats/<str:promotion_type>`
    - **Description**: Displays the number of coupons with discount, the minimum discount, maximum discount, and average discount for percent-off coupons.
 ```
 {
@@ -92,8 +93,9 @@ This might help you: https://www.digitalocean.com/community/tutorials/how-to-ins
 }
 ```
 
-3. **Dollar-Off Coupon Stats**:
+4. **Dollar-Off Coupon Stats**:
    - **GET** (JSON): `/stats/dollar-off`
+   - urls.py: `stats/<str:promotion_type>`
    - **Description**: Same as above but for dollar-off coupons.
 ```
 {
@@ -103,8 +105,9 @@ This might help you: https://www.digitalocean.com/community/tutorials/how-to-ins
     "avg_discount": 45.91
 }
 ```
-4. **Percent-Off Coupons by Retailer**:
+5. **Percent-Off Coupons by Retailer**:
    - **GET** (JSON): `/stats/percent-off/retailers`
+   - urls.py: `stats/<str:promotion_type>/retailers`
    - **Description**: Displays the same values as the percent-off stats but groups them by retailer.
 ```
 [
@@ -131,8 +134,9 @@ This might help you: https://www.digitalocean.com/community/tutorials/how-to-ins
     }
 ]
 ```
-5. **Dollar-Off Coupons by Retailer**:
+6. **Dollar-Off Coupons by Retailer**:
    - **GET** (JSON): `/stats/dollar-off/retailers`
+   - urls.py: `stats/<str:promotion_type>/retailers`
    - **Description**: Same as above but for dollar-off coupons.
 ```
 [
@@ -159,7 +163,7 @@ This might help you: https://www.digitalocean.com/community/tutorials/how-to-ins
     }
 ]
 ```
-6. **Admin CRM**
+7. **Admin CRM**
    - **GET** (website): `/admin`
    - **Description**: Don't forget that Django also provides `/admin` style CRM web client to manage the models among many tools, and you only will need to create a superuser just after running `restart_database.py`, and then do:
 
