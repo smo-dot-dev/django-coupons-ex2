@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Ꝏ Coupon Statistics</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <style>
+    * {
+      font-size: 1rem;
+    }
+  </style>
+  <body>
+    <div class="container mt-1 w-100">
+      <h1 class="text-center">Ꝏ Coupon Statistics Dashboard</h1>
+
+      <div class="row mt-5">
+        <div class="col">
+          <h4>📊 How many coupons does each coupon type have?</h4>
+          <canvas style="max-height: 23em" id="countChart"></canvas>
+        </div>
+      </div>
+
+      <div class="row mt-5">
+        <div class="col">
+          <h4>📊 Percent-off Coupons Stats (min, max, avg)</h4>
+          <button type="button" class="btn btn-success">
+            <h6>
+              Total <span class="badge text-bg-secondary">
+                {{ percent_off_data.num_coupons }}</span
+              >
+            </h6>
+          </button>
+          <canvas id="percentOffChart"></canvas>
+        </div>
+        <div class="col">
+          <h4>💸 Dollar-off Coupons Stats (min, max, avg)</h4>
+          <button type="button" class="btn btn-success">
+            <h6>
+              Total <span class="badge text-bg-secondary">
+                {{ dollar_off_data.num_coupons }}</span
+              >
+            </h6>
+          </button>
+          <canvas id="dollarOffChart"></canvas>
+        </div>
+      </div>
+
+      <div class="row mt-5">
+        <div class="col">
+          <h4>📊 Percent Discount Stats by Retailer</h4>
+          {% for retailer in percent_off_retailer_data %}
+          <button type="button" class="btn btn-success">
+            <h6>
+              {{ retailer.webshop }} <span class="badge text-bg-secondary">
+                {{ retailer.num_coupons }}</span
+              >
+            </h6>
+          </button>
+          {% endfor %}
+          <canvas id="retailerChartPercent"></canvas>
+        </div>
+        <div class="col">
+          <h4>💸 Dollar Discount Stats by Retailer</h4>
+          {% for retailer in percent_off_retailer_data %}
+          <button type="button" class="btn btn-success">
+            <h6>
+              {{ retailer.webshop }} <span class="badge text-bg-secondary">
+                {{ retailer.num_coupons }}</span
+              >
+            </h6>
+          </button>
+          {% endfor %}
+          <canvas id="retailerChartDollar"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Data from Django views
+      const countData = {{ count_data|safe }};
+      const percentOffData = {{ percent_off_data|safe }};
+      const dollarOffData = {{ dollar_off_data|safe }};
+      const percent_off_retailer_data = {{ percent_off_retailer_data|safe }};
+      const dollar_off_retailer_data = {{ dollar_off_retailer_data|safe }};
+
+      console.log(countData);
+      console.log(percentOffData);
+      console.log(dollarOffData);
+      console.log(percent_off_retailer_data);
+
+      // Count Chart
+      new Chart(document.getElementById("countChart"), {
+          type: 'pie',
+          data: {
+              labels: countData.map(item => item.name),
+              datasets: [{
+                  label: 'Number of Coupons',
+                  data: countData.map(item => item.count),
+                  backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"]
+              }],
+          },
+
+      });
+
+      // Percent-off Chart
+      new Chart(document.getElementById("percentOffChart"), {
+          type: 'bar',
+          data: {
+              labels: ['Min Discount', 'Max Discount', 'Avg Discount'],
+              datasets: [{
+                  label: '% discount',
+                  data: [percentOffData.min_discount, percentOffData.max_discount, percentOffData.avg_discount],
+                  backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f"]
+              }]
+          },
+          options: {
+              scales: {
+                  y: {
+                    ticks: {
+                      // Format y-axis labels as currency
+                      callback: function(value, index, values) {
+                        return value + '%';
+                      }
+                    }
+                  }
+                }
+          },
+          legend: {
+              display: false
+          }
+      });
+
+      // Dollar-off Chart
+      new Chart(document.getElementById("dollarOffChart"), {
+          type: 'bar',
+          data: {
+              labels: ['Min Discount', 'Max Discount', 'Avg Discount'],
+              datasets: [{
+                  label: '$ discount',
+                  data: [dollarOffData.min_discount, dollarOffData.max_discount, dollarOffData.avg_discount],
+                  backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f"]
+              }]
+          },
+          options: {
+              scales: {
+                  y: {
+                    ticks: {
+                      // Format y-axis labels as currency
+                      callback: function(value, index, values) {
+                        return '$' + value;
+                      }
+                    }
+                  }
+                }
+          }
+      });
+
+      // Percent retailer Chart
+      new Chart(document.getElementById("retailerChartPercent"), {
+          type: 'bar',
+          data: {
+              labels: percent_off_retailer_data.map(item => item.webshop),
+              datasets: [{
+                  label: 'Avg %',
+                  data: percent_off_retailer_data.map(item => item.avg_discount),
+                  backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f"]
+              },
+              {
+                  label: 'Min %',
+                  data: percent_off_retailer_data.map(item => item.min_discount),
+                  backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f"]
+              },
+              {
+                  label: 'Max %',
+                  data: percent_off_retailer_data.map(item => item.max_discount),
+                  backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f"]
+              }]
+          },
+          options: {
+              scales: {
+                  y: {
+                    ticks: {
+                      // Format y-axis labels as currency
+                      callback: function(value, index, values) {
+                        return value + '%';
+                      }
+                    }
+                  }
+                }
+          }
+      });
+      // Dollar retailer Chart
+      new Chart(document.getElementById("retailerChartDollar"), {
+          type: 'bar',
+          data: {
+              labels: dollar_off_retailer_data.map(item => item.webshop),
+              datasets: [{
+                  label: 'Avg $',
+                  data: dollar_off_retailer_data.map(item => item.avg_discount),
+                  backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f"]
+              },
+              {
+                  label: 'Min $',
+                  data: dollar_off_retailer_data.map(item => item.min_discount),
+                  backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f"]
+              },
+              {
+                  label: 'Max $',
+                  data: dollar_off_retailer_data.map(item => item.max_discount),
+                  backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f"]
+              }]
+          },
+          options: {
+              scales: {
+                  y: {
+                    ticks: {
+                      // Format y-axis labels as currency
+                      callback: function(value, index, values) {
+                        return '$' + value;
+                      }
+                    }
+                  }
+                }
+          }
+      });
+    </script>
+  </body>
+</html>
